@@ -1,0 +1,1183 @@
+{
+  "name": "GESTION DE INVENTARIO",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -544,
+        -32
+      ],
+      "id": "82e19c65-9cc5-4cbb-9464-af04245a5263",
+      "name": "Telegram Trigger",
+      "webhookId": "cd1c8112-96f5-484c-92a8-c2b753f72459",
+      "credentials": {
+        "telegramApi": {
+          "id": "4d6W3dY94h93VwUr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "disable_notification": false,
+          "disable_web_page_preview": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        848,
+        -32
+      ],
+      "id": "cb7c703c-3139-469b-998d-61b550149112",
+      "name": "Send a text message",
+      "webhookId": "8ad49fcb-7272-4000-8c02-5d7b62d73712",
+      "credentials": {
+        "telegramApi": {
+          "id": "4d6W3dY94h93VwUr",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "=**PROMPT PARA AGENTE DE INTELIGENCIA ARTIFICIAL: GESTOR INTELIGENTE DE INVENTARIO**\n\n**ROL:**\nEres un **Gestor Inteligente de Inventario**, un agente de inteligencia artificial especializado en la gestión de inventarios. Tu función es **registrar, actualizar, eliminar y mostrar registros de inventario por fecha**, garantizando siempre la validación del usuario antes de ejecutar cualquier acción.\n\n**OBJETIVO:**\nAyudar al usuario a mantener un control preciso del inventario mediante consultas claras, confirmaciones previas y procesos guiados paso a paso.\n\n---\n\n**FUNCIONES PRINCIPALES:**\n\n1. Registrar nuevas ventas, ingresos o salidas.\n\n    a. **Paso 1: Selección de Hoja.** Pregúntale al usuario: \"Por favor, indica en cuál de estas hojas deseas registrar esta transacción: LUBRICANTE, GAS, AUTOMOTRIZ, BEBIDAS o VARIOS.\"\n\n    b. **Paso 2: Solicitud de Datos.** Solicita los datos de la transacción (detalle, cantidad, precio unitario, tipo de registro, fecha).\n    \n    c. Genera un ID único (UUID) y pide confirmación antes de guardar.\n    \n    d. Reglas de operación:\n        - Si es venta, la Cantidad es negativa.\n        - Si es compra, la Cantidad es positiva.\n       \n2. Actualizar registros existentes.\n    - Solicita ID, campo a modificar y nuevo valor. Muestra vista previa y pide confirmación.\n\n3. Eliminar registros.\n    - Solicita ID. Muestra datos previos y pide confirmación.\n\n4. Mostrar registros de inventario por fecha.\n    - Solicita fecha específica. Muestra registros y pide confirmación antes de desplegar.\n\n---\n\n### **ESTRUCTURA DE CADA REGISTRO DE INVENTARIO:**\n\n| Campo                | Descripción                                |\n| -------------------- | ------------------------------------------ |\n| **ID**               | Identificador único autogenerado (UUID)    |\n| **Detalle**          | Descripción del producto o movimiento      |\n| **Cantidad**         | Número de unidades                         |\n| **Precio unitario**  | Valor de cada unidad                       |\n| **Tipo de registro** | Ejemplo: \"venta efectivo\", \"venta transferencia\", \"compra efectivo\", \"compra transferencia\" |\n| **Fecha**            | Fecha de la operación                      |\n\n---\n\n### **REGLAS GENERALES:**\n\n1. **Confirmación obligatoria:**\n   Antes de realizar cualquier acción (crear, actualizar, eliminar, mostrar), se debe solicitar validación del usuario.\n\n2. **Asistencia a nuevos usuarios:**\n   Si es la primera vez que el usuario interactúa con el sistema, explica brevemente cómo funciona el chatbot y ofrece ejemplos de uso (por ejemplo: *\"puedes decir 'registrar nueva venta' o 'mostrar inventario del 10 de mayo'\"*).\n\n3. **Inferencia inteligente:**\n   Si el usuario no proporciona un dato, intenta inferirlo a partir del contexto o de entradas previas (por ejemplo, usar la fecha actual o un tipo de registro común).\n\n4. **Respuestas claras y estructuradas:**\n   Siempre presenta los datos en formato de tabla o lista para facilitar la lectura y confirmación del usuario.\n\n5. **Límite de acción:**\n   El agente **solo** puede responder o ejecutar acciones relacionadas con su rol de Gestor de Inventario. Si se solicita algo fuera de este contexto, debe responder cortésmente que no puede realizar esa acción.\n\n---\n\n**EJEMPLOS DE INTERACCIÓN:**\n\n**Usuario:** Registrar una nueva venta.\n**Agente:** Perfecto 📈, necesito los siguientes datos: detalle, cantidad, precio unitario, tipo de registro y fecha (puedo usar la de hoy si quieres).\n\n**Usuario:** Venta de 3 unidades de mouse a $2000 cada una, venta efectivo, hoy.\n**Agente:** Entendido, aquí está el registro:\n\n* ID: *autogenerado*\n* Detalle: Mouse\n* Cantidad: 3\n* Precio unitario: $2000\n* Tipo: Venta o compra\n* Fecha: 23/10/2025\n\n¿Confirmas el registro? (Sí/No)\n\n---\n\nEste prompt garantiza que el agente actúe con precisión, claridad y seguridad en la gestión del inventario.\n\n\n\n\nConsidera que la fecha de hoy es\n {{ $json.formattedDate }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        272,
+        -32
+      ],
+      "id": "1e1d86c8-15c7-4de6-a62e-a6383574556f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        144,
+        176
+      ],
+      "id": "29029ba6-4b7e-4509-9a48-267d479a0454",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "D6kS7dv0QsZElJgT",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.from.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        256,
+        176
+      ],
+      "id": "787e0721-54de-4e02-bc7c-ccc732b3d0fd",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        -32
+      ],
+      "id": "ff8a39c3-81d7-4338-abbf-b2cb0e629e47",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.currentDate }}",
+        "format": "yyyy-MM-dd",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -32
+      ],
+      "id": "1f9e8b0a-6f78-4a64-a915-1fe74dc67c3f",
+      "name": "Date & Time1"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Mostrar registros de Google Sheets",
+        "documentId": {
+          "__rl": true,
+          "value": "1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4",
+          "mode": "list",
+          "cachedResultName": "GESTOR DE INVENTARIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $fromAI('Sheet', ``, 'string') }}",
+          "mode": "id"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "USUARIO",
+              "lookupValue": "={{ $('Telegram Trigger').item.json.message.from.first_name }}"
+            },
+            {
+              "lookupColumn": "FECHA",
+              "lookupValue": "={{ $fromAI('values1_Value', ``, 'string') }}"
+            },
+            {
+              "lookupColumn": "DETALLE",
+              "lookupValue": "={{ $fromAI('values2_Value', ``, 'string') }}"
+            },
+            {
+              "lookupColumn": "CANTIDAD",
+              "lookupValue": "={{ $fromAI('values3_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        176
+      ],
+      "id": "652fe488-93a5-4999-ba6c-b0c7f45ef56d",
+      "name": "MOSTRAR",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y5OWQUE18pUpIehI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Actualizar un registro en Google Sheets",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4",
+          "mode": "list",
+          "cachedResultName": "GESTOR DE INVENTARIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $fromAI('Sheet', ``, 'string') }}",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $fromAI('ID__using_to_match_', ``, 'string') }}",
+            "USUARIO": "={{ $('Telegram Trigger').item.json.message.from.first_name }}",
+            "FECHA": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('FECHA', ``, 'string') }}",
+            "TIPO": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('TIPO', ``, 'string') }}",
+            "DETALLE": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('DETALLE', ``, 'string') }}",
+            "CANTIDAD": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('CANTIDAD', ``, 'string') }}",
+            "PRECIO": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('PRECIO', ``, 'string') }}",
+            "ESTADO": "ACTUALIZADO",
+            "row_number": 0,
+            "STOCK": "={{ $fromAI('STOCK', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "USUARIO",
+              "displayName": "USUARIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FECHA",
+              "displayName": "FECHA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TIPO",
+              "displayName": "TIPO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DETALLE",
+              "displayName": "DETALLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CANTIDAD",
+              "displayName": "CANTIDAD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PRECIO",
+              "displayName": "PRECIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ESTADO",
+              "displayName": "ESTADO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "STOCK",
+              "displayName": "STOCK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        512,
+        176
+      ],
+      "id": "bac8305d-9aa6-45ad-841b-5f2f5fb25239",
+      "name": "ACTUALIZAR",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y5OWQUE18pUpIehI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Eliminar un registro en Google Sheets",
+        "operation": "delete",
+        "documentId": {
+          "__rl": true,
+          "value": "1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4",
+          "mode": "list",
+          "cachedResultName": "GESTOR DE INVENTARIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $fromAI('Sheet', ``, 'string') }}",
+          "mode": "id"
+        },
+        "numberToDelete": "={{ $fromAI('Number_of_Rows_to_Delete', ``, 'number') }}"
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        656,
+        176
+      ],
+      "id": "5cfe9dd5-4c8c-4c0e-b76f-55df67e65b61",
+      "name": "ELIMINAR",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y5OWQUE18pUpIehI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=crear en Google Sheets",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4",
+          "mode": "list",
+          "cachedResultName": "GESTOR DE INVENTARIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "LUBRICANTE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $fromAI('ID', ``, 'string') }}",
+            "USUARIO": "={{ $fromAI('USUARIO', ``, 'string') }}",
+            "FECHA": "={{ $fromAI('FECHA', ``, 'string') }}",
+            "TIPO": "={{ $fromAI('TIPO', ``, 'string') }}",
+            "DETALLE": "={{ $fromAI('DETALLE', ``, 'string') }}",
+            "CANTIDAD": "={{ $fromAI('CANTIDAD', ``, 'string') }}",
+            "PRECIO": "={{ $fromAI('PRECIO', ``, 'string') }}",
+            "ESTADO": "=REGISTRADO"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "USUARIO",
+              "displayName": "USUARIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FECHA",
+              "displayName": "FECHA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TIPO",
+              "displayName": "TIPO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DETALLE",
+              "displayName": "DETALLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CANTIDAD",
+              "displayName": "CANTIDAD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PRECIO",
+              "displayName": "PRECIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ESTADO",
+              "displayName": "ESTADO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "STOCK",
+              "displayName": "STOCK",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        -304
+      ],
+      "id": "93a0052c-1845-429a-9906-b96e05ce2199",
+      "name": "CREAR LUBRICANTE",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y5OWQUE18pUpIehI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Crear en Google Sheets",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4",
+          "mode": "list",
+          "cachedResultName": "GESTOR DE INVENTARIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1947168297,
+          "mode": "list",
+          "cachedResultName": "GAS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit#gid=1947168297"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $fromAI('ID', ``, 'string') }}",
+            "USUARIO": "={{ $fromAI('USUARIO', ``, 'string') }}",
+            "FECHA": "={{ $fromAI('FECHA', ``, 'string') }}",
+            "TIPO": "={{ $fromAI('TIPO', ``, 'string') }}",
+            "DETALLE": "={{ $fromAI('DETALLE', ``, 'string') }}",
+            "CANTIDAD": "={{ $fromAI('CANTIDAD', ``, 'string') }}",
+            "PRECIO": "={{ $fromAI('PRECIO', ``, 'string') }}",
+            "ESTADO": "=REGISTRADO"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "USUARIO",
+              "displayName": "USUARIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FECHA",
+              "displayName": "FECHA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TIPO",
+              "displayName": "TIPO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DETALLE",
+              "displayName": "DETALLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CANTIDAD",
+              "displayName": "CANTIDAD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PRECIO",
+              "displayName": "PRECIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ESTADO",
+              "displayName": "ESTADO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        240,
+        -304
+      ],
+      "id": "6d90251c-4586-4851-8f46-1df690157f7a",
+      "name": "CREAR GAS",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y5OWQUE18pUpIehI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Crear en Google Sheets",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4",
+          "mode": "list",
+          "cachedResultName": "GESTOR DE INVENTARIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 809567692,
+          "mode": "list",
+          "cachedResultName": "AUTOMOTRIZ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit#gid=809567692"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $fromAI('ID', ``, 'string') }}",
+            "USUARIO": "={{ $fromAI('USUARIO', ``, 'string') }}",
+            "FECHA": "={{ $fromAI('FECHA', ``, 'string') }}",
+            "TIPO": "={{ $fromAI('TIPO', ``, 'string') }}",
+            "DETALLE": "={{ $fromAI('DETALLE', ``, 'string') }}",
+            "CANTIDAD": "={{ $fromAI('CANTIDAD', ``, 'string') }}",
+            "PRECIO": "={{ $fromAI('PRECIO', ``, 'string') }}",
+            "ESTADO": "=REGISTRADO"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "USUARIO",
+              "displayName": "USUARIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FECHA",
+              "displayName": "FECHA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TIPO",
+              "displayName": "TIPO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DETALLE",
+              "displayName": "DETALLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CANTIDAD",
+              "displayName": "CANTIDAD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PRECIO",
+              "displayName": "PRECIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ESTADO",
+              "displayName": "ESTADO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        384,
+        -304
+      ],
+      "id": "6e26c3cf-640c-4baa-9859-3477fc1fcee4",
+      "name": "CREAR AUTOMOTRIZ",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y5OWQUE18pUpIehI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Crear en Google Sheets",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4",
+          "mode": "list",
+          "cachedResultName": "GESTOR DE INVENTARIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1469021617,
+          "mode": "list",
+          "cachedResultName": "BEBIDAS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit#gid=1469021617"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $fromAI('ID', ``, 'string') }}",
+            "USUARIO": "={{ $fromAI('USUARIO', ``, 'string') }}",
+            "FECHA": "={{ $fromAI('FECHA', ``, 'string') }}",
+            "TIPO": "={{ $fromAI('TIPO', ``, 'string') }}",
+            "DETALLE": "={{ $fromAI('DETALLE', ``, 'string') }}",
+            "CANTIDAD": "={{ $fromAI('CANTIDAD', ``, 'string') }}",
+            "PRECIO": "={{ $fromAI('PRECIO', ``, 'string') }}",
+            "ESTADO": "=REGISTRADO"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "USUARIO",
+              "displayName": "USUARIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FECHA",
+              "displayName": "FECHA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TIPO",
+              "displayName": "TIPO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DETALLE",
+              "displayName": "DETALLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CANTIDAD",
+              "displayName": "CANTIDAD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PRECIO",
+              "displayName": "PRECIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ESTADO",
+              "displayName": "ESTADO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        512,
+        -304
+      ],
+      "id": "9bc33b1d-d848-4ee9-b936-08f0d5d8fe0d",
+      "name": "CREAR BEBIDAS",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y5OWQUE18pUpIehI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Crear en Google Sheets",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4",
+          "mode": "list",
+          "cachedResultName": "GESTOR DE INVENTARIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 650373959,
+          "mode": "list",
+          "cachedResultName": "VARIOS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a1Oo5pNdtWjyyowBt5ojkN2eT3ntPYywWhdOw-EyBk4/edit#gid=650373959"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $fromAI('ID', ``, 'string') }}",
+            "USUARIO": "={{ $fromAI('USUARIO', ``, 'string') }}",
+            "FECHA": "={{ $fromAI('FECHA', ``, 'string') }}",
+            "TIPO": "={{ $fromAI('TIPO', ``, 'string') }}",
+            "DETALLE": "={{ $fromAI('DETALLE', ``, 'string') }}",
+            "CANTIDAD": "={{ $fromAI('CANTIDAD', ``, 'string') }}",
+            "PRECIO": "={{ $fromAI('PRECIO', ``, 'string') }}",
+            "ESTADO": "=REGISTRADO"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "USUARIO",
+              "displayName": "USUARIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FECHA",
+              "displayName": "FECHA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TIPO",
+              "displayName": "TIPO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DETALLE",
+              "displayName": "DETALLE",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CANTIDAD",
+              "displayName": "CANTIDAD",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PRECIO",
+              "displayName": "PRECIO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ESTADO",
+              "displayName": "ESTADO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        -304
+      ],
+      "id": "d1c4d29f-40a7-483b-adb4-95e98c38ad41",
+      "name": "CREAR VARIOS",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y5OWQUE18pUpIehI",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "Date & Time1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MOSTRAR": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ACTUALIZAR": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ELIMINAR": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREAR LUBRICANTE": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREAR GAS": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREAR AUTOMOTRIZ": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREAR BEBIDAS": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREAR VARIOS": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f628c7cf-d528-4912-84bb-37a9bb907948",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8060d5441b8775b9ffe25935eb1e0064bc98a032d35e23aea214f9bff73b341a"
+  },
+  "id": "tqVPbl2L7qJ1PdSA",
+  "tags": []
+}
